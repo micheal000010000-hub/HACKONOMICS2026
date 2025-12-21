@@ -1,0 +1,56 @@
+Please update the existing React + TypeScript codebase with the following changes.
+Do NOT regenerate the project from scratch. Modify the current files.
+
+1) HOME PAGE – MAKE CARDS INTERACTIVE
+- On the landing/home page, the bottom 3 feature cards should be clickable
+- Each card should navigate to its corresponding page using React Router
+  Example:
+  - "Simulation" card → /simulation
+  - "Cryptography" card → /crypto
+  - "Consensus" card → /consensus
+- Add hover effects (scale or shadow) to show interactivity
+
+2) DARK MODE / LIGHT MODE TOGGLE
+- Add a theme toggle button in the top navbar
+- Use a Sun icon for light mode and Moon icon for dark mode
+- Clicking the button should toggle theme across the entire site
+- Persist the selected theme using localStorage
+- Default theme should respect system preference
+
+3) SIMULATION PAGE – ADD VISUAL CARDS / IMAGES
+- The simulation page currently shows only text comparisons
+- Replace plain text steps with visual cards
+- Each card should include:
+  - An icon or illustration (bank, contract, government stamp, blockchain, nodes, etc.)
+  - A short title
+- Cards should be clickable and highlight when active
+- When clicked, update the simulation state as before
+
+4) FOOTER – NEWSLETTER, CONTACT, PERSONAL BRANDING
+- Add a footer visible on all pages
+- Footer should include:
+  - Newsletter subscription input (email only, no backend needed)
+  - Contact section (email)
+  - Personal branding links:
+    - GitHub
+    - LeetCode
+    - Project repository
+- Use clean, minimal styling consistent with the rest of the site
+
+5) MOBILE NAVBAR FIX
+- On mobile screens:
+  - Replace the disappearing navbar with a hamburger menu (top-left)
+  - Clicking the hamburger icon should open a vertical menu
+  - Menu should list pages:
+    - Home
+    - Simulation
+    - Cryptography
+    - Consensus
+    - Contact
+- Menu should close when a link is clicked
+- Ensure accessibility (keyboard + aria-labels)
+
+After implementing:
+- Ensure desktop and mobile views both work correctly
+- Do not remove existing functionality
+- Keep code clean and modular

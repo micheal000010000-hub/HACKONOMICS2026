@@ -1,0 +1,106 @@
+You are a senior product designer and full-stack engineer.
+
+Build a modern, interactive educational web application focused on
+financial literacy through blockchain-based transaction simulation.
+
+CORE GOAL
+Create a website that visually simulates and compares:
+1) A traditional government-authorized financial transaction (e.g., land purchase)
+2) A blockchain-based smart contract transaction
+
+The goal is education through interaction, not long explanations.
+
+TECH CONSTRAINTS
+- Frontend: React + TypeScript
+- Styling: Modern UI (Tailwind or equivalent)
+- Backend: FastAPI (mock or real)
+- AI Tutor: Integrated chatbot (floating widget)
+- Theme: Dark mode / Light mode toggle
+
+PAGES AND FEATURES
+
+1) LANDING PAGE
+- Hero heading: "Who Authorizes Your Money?"
+- Subheading: "Understand how trust, law, and code validate financial transactions."
+- Primary CTA button: "Start Simulation"
+- Secondary links: GitHub, Contact
+- Clean, modern, minimal design
+
+2) SIMULATION PAGE (CORE FEATURE)
+Split-screen layout:
+
+LEFT PANEL – TRADITIONAL SYSTEM (clickable step cards)
+1. Buyer & Seller Agreement
+2. Bank / Escrow
+3. Tax & Stamp Duty
+4. Government Registry
+
+RIGHT PANEL – BLOCKCHAIN SYSTEM (clickable step cards)
+1. Buyer & Seller Agreement
+2. Smart Contract Creation
+3. Cryptographic Signing
+4. Network Validation
+5. Immutable Record
+
+INTERACTION RULES
+- Only one step active at a time
+- Clicking a step:
+  - Highlights the card
+  - Triggers a visual animation in a bottom "Simulation Canvas"
+  - Shows ONE concise sentence explaining what happened
+- No long paragraphs
+
+3) CRYPTOGRAPHY PLAYGROUND
+Interactive mini tools:
+- Generate public / private key pair
+- Hash a transaction string
+- Modifying input visibly changes the hash
+- Sign and verify a transaction
+
+Show results visually with minimal explanation text.
+
+4) CONSENSUS VISUALIZER
+Toggle between:
+- Proof of Work
+- Proof of Stake
+
+Each mode:
+- Simple animated visualization
+- Shows tradeoffs (energy vs stake)
+- One-sentence takeaway per mode
+
+5) AI TUTOR (FLOATING WIDGET)
+- Bottom-right chat button
+- Opens a slide-up chat panel
+- AI acts as a financial literacy tutor
+- Explains concepts shown on the site using simple analogies
+- No investment advice, no price prediction
+
+6) FOOTER AND PERSONAL BRANDING
+Include:
+- About the creator
+- Email contact
+- GitHub profile
+- LeetCode profile
+- Project repository link
+- Newsletter subscription input
+
+DESIGN EXPECTATIONS
+- Clean, modern, professional
+- Educational but not academic
+- Animation-driven understanding
+- Mobile responsive
+
+DELIVERABLES
+- Visual UI layout
+- Component structure
+- Example data and placeholder animations
+- Clear user interaction flow
+
+Focus on SHOWING, not explaining.
+
+Build this as a hackathon-quality project that demonstrates:
+- Financial literacy understanding
+- Blockchain fundamentals
+- Strong UI/UX thinking
+- Real-world engineering skills
