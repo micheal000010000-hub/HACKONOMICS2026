@@ -3,13 +3,23 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { db } from "./db";
+import { newsletterSubscribers } from "@shared/schema";
+import { sendSubscriptionEmail } from "./email";
 
-// Initialize OpenAI client - Replit integration sets OPENAI_API_KEY
-// Note: We'll check if the key exists before using it to avoid crashes if integration fails
-const openai = new OpenAI({ 
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY || "mock-key",
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL
+
+
+
+import dotenv from "dotenv";
+dotenv.config({ path: "../../.env" });
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(
+  process.env.GOOGLE_API_KEY || "mock-key"
+);
+// console.log("Gemini API Key:", process.env.GOOGLE_API_KEY);
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
 });
 
 export async function registerRoutes(
@@ -21,41 +31,57 @@ export async function registerRoutes(
     try {
       const { message, history } = api.chat.send.input.parse(req.body);
 
-      // System prompt for the financial tutor
-      const systemMessage = {
-        role: "system" as const,
-        content: `You are a helpful and knowledgeable financial literacy tutor. 
-        Your goal is to explain financial concepts (Traditional Finance vs Blockchain) simply and clearly.
-        Use analogies. Keep answers concise. Do not give investment advice.
-        The user is interacting with a simulation app that compares traditional land purchases with blockchain smart contracts.
-        Context:
-        - Traditional: involves banks, escrow, government registries, taxes. Slow, centralized.
-        - Blockchain: involves smart contracts, crypto signing, network validation, immutable records. Fast, decentralized, trustless.`
-      };
+      // System prompt (same intent as before)
+      const systemPrompt = `
+                          You are a helpful and knowledgeable financial literacy tutor.
+                          Your goal is to explain financial concepts (Traditional Finance vs Blockchain) simply and clearly.
+                          Use analogies. Keep answers concise. Do not give investment advice.
+                          The user is interacting with a simulation app that compares traditional land purchases with blockchain smart contracts.
 
-      // Prepare messages for OpenAI
-      const apiMessages = [
-        systemMessage,
-        ...(history || []).map(msg => ({ role: msg.role as "user" | "assistant", content: msg.content })),
-        { role: "user" as const, content: message }
-      ];
+                          Context:
+                          - Traditional: involves banks, escrow, government registries, taxes. Slow, centralized.
+                          - Blockchain: involves smart contracts, crypto signing, network validation, immutable records. Fast, decentralized, trustless.
+                          `.trim();
 
-      // Call OpenAI
-      // Check if we have a real key or if we need to mock
       let aiResponseContent = "";
-      
-      if (!process.env.OPENAI_API_KEY) {
-        // Mock response if no key (fallback)
-        aiResponseContent = "I'm a simulated AI tutor (OpenAI key missing). In a real deployment, I would explain: " + message;
+
+      // Fallback if key missing
+      if (!process.env.GOOGLE_API_KEY) {
+        // console.log("Gemini API Key:", process.env.GOOGLE_API_KEY);
+        aiResponseContent =
+          "I'm a simulated AI tutor (Gemini key missing). In a real deployment, I would explain: " +
+          message;
       } else {
-        const completion = await openai.chat.completions.create({
-          messages: apiMessages,
-          model: "gpt-4o-mini",
+        // Convert history to Gemini format
+        const contents = [
+          {
+            role: "user",
+            parts: [{ text: systemPrompt }],
+          },
+          ...(history || []).map((msg) => ({
+            role: msg.role === "assistant" ? "model" : "user",
+            parts: [{ text: msg.content }],
+          })),
+          {
+            role: "user",
+            parts: [{ text: message }],
+          },
+        ];
+
+        const result = await model.generateContent({
+          contents,
+          generationConfig: {
+            maxOutputTokens: 1024,
+          },
         });
-        aiResponseContent = completion.choices[0].message.content || "I couldn't generate a response.";
+
+        aiResponseContent =
+          result.response.text() || "I couldn't generate a response.";
       }
 
+      // SAME RESPONSE SHAPE AS BEFORE
       res.json({ message: aiResponseContent });
+
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
@@ -66,6 +92,36 @@ export async function registerRoutes(
       res.status(500).json({ message: "Failed to get AI response" });
     }
   });
+
+
+
+
+
+  app.post("/api/subscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      // console.log("SUBSCRIBE ROUTE HIT with emai as :", email);
+
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      await db.insert(newsletterSubscribers).values({ email });
+
+      await sendSubscriptionEmail(email);
+
+      return res.status(201).json({ message: "Subscribed" });
+    } catch (err: any) {
+      if (err.code === "23505") {
+
+        return res.status(409).json({ message: "Already subscribed" });
+      }
+
+      console.error(err);
+      res.status(500).json({ message: "Failed to subscribe" });
+    }
+  });
+
 
   return httpServer;
 }
