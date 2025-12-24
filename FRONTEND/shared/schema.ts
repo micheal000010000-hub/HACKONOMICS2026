@@ -11,12 +11,8 @@ export const conversations = pgTable("conversations", {
 });
 
 /* ---------------- Messages ---------------- */
-
 export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
-  conversationId: integer("conversation_id")
-    .notNull()
-    .references(() => conversations.id, { onDelete: "cascade" }),
   role: text("role").notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
