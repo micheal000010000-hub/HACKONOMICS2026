@@ -1,10 +1,28 @@
-node_modules
-dist
+# Node / build
+node_modules/
+dist/
+package-lock.json
+
+# OS / editor
 .DS_Store
-server/public
+
+# Public build output
+server/public/
+
+# Vite / build artifacts
 vite.config.ts.*
+
+# Archives
 *.tar.gz
 
+# Environment files (ignore all variants)
 .env
-package-lock.json
-ui
+.env.*
+.env.local
+.env.*.local
+
+# Keep an example env file in the repo for docs
+!.env.example
+
+# Misc
+ui/
