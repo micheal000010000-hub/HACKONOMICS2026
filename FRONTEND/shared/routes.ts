@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { insertMessageSchema, messages } from './schema';
 
 export const api = {
   chat: {

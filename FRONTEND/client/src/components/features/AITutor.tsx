@@ -12,15 +12,38 @@ interface Message {
   content: string;
 }
 
+const STORAGE_KEY = "ai_tutor_messages";
+
 export function AITutor() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm your crypto tutor. Ask me anything about blockchain, cryptography, or how this simulation works!" }
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // ✅ Restore from sessionStorage
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {}
+      }
+    }
+
+    return [
+      {
+        role: "assistant",
+        content:
+          "Hi! I'm your crypto tutor. Ask me anything about blockchain, cryptography, or how this simulation works!",
+      },
+    ];
+  });
+
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
   const chatMutation = useChat();
+
+  // ✅ Persist messages for same-tab navigation
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,19 +57,38 @@ export function AITutor() {
     e.preventDefault();
     if (!inputValue.trim() || chatMutation.isPending) return;
 
-    const userMsg: Message = { role: "user", content: inputValue };
-    setMessages(prev => [...prev, userMsg]);
+    const userMessage: Message = {
+      role: "user",
+      content: inputValue,
+    };
+
+    const nextMessages = [...messages, userMessage];
+
+    setMessages(nextMessages);
     setInputValue("");
 
     chatMutation.mutate(
-      { message: inputValue, history: messages },
+      {
+        message: userMessage.content,
+        history: nextMessages,
+      },
       {
         onSuccess: (data) => {
-          setMessages(prev => [...prev, { role: "assistant", content: data.message }]);
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: data.message },
+          ]);
         },
         onError: () => {
-          setMessages(prev => [...prev, { role: "assistant", content: "Sorry, I had trouble connecting to the network. Please try again." }]);
-        }
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                "Sorry, I had trouble connecting to the network. Please try again.",
+            },
+          ]);
+        },
       }
     );
   };
@@ -59,7 +101,7 @@ export function AITutor() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed bottom-24 right-4 md:right-8 z-50 w-[90vw] md:w-[400px] h-[500px] glass-card rounded-2xl flex flex-col overflow-hidden shadow-2xl border-primary/20"
+            className="fixed bottom-24 right-4 md:right-8 z-50 w-[90vw] md:w-[400px] h-[500px] md:h-[650px] lg:h-[720px] glass-card rounded-2xl flex flex-col overflow-hidden shadow-2xl border-primary/20"
           >
             {/* Header */}
             <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center justify-between">
@@ -71,11 +113,13 @@ export function AITutor() {
                   <h3 className="font-bold text-sm">Crypto Tutor</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs text-muted-foreground">Online</span>
+                    <span className="text-xs text-muted-foreground">
+                      Online
+                    </span>
                   </div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
@@ -93,30 +137,36 @@ export function AITutor() {
                     msg.role === "user" ? "ml-auto flex-row-reverse" : ""
                   )}
                 >
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-                    msg.role === "user" ? "bg-muted text-foreground" : "bg-primary/20 text-primary"
-                  )}>
-                    {msg.role === "user" ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
-                  </div>
-                  <div className={cn(
-                    "p-3 rounded-2xl text-sm leading-relaxed",
-                    msg.role === "user" 
-                      ? "bg-primary/20 text-primary-foreground rounded-tr-sm" 
-                      : "bg-muted/50 border border-border rounded-tl-sm"
-                  )}>
-                    <div className="
-                    prose prose-sm dark:prose-invert max-w-none
-                    prose-code:bg-muted prose-code:px-1 prose-code:rounded
-                  ">
-                    <ReactMarkdown>
-                      {msg.content}
-                    </ReactMarkdown>
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+                      msg.role === "user"
+                        ? "bg-muted text-foreground"
+                        : "bg-primary/20 text-primary"
+                    )}
+                  >
+                    {msg.role === "user" ? (
+                      <User className="w-4 h-4" />
+                    ) : (
+                      <Sparkles className="w-4 h-4" />
+                    )}
                   </div>
 
+                  <div
+                    className={cn(
+                      "p-3 rounded-2xl text-sm leading-relaxed",
+                      msg.role === "user"
+                        ? "bg-primary/20 text-primary-foreground rounded-tr-sm"
+                        : "bg-muted/50 border border-border rounded-tl-sm"
+                    )}
+                  >
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               ))}
+
               {chatMutation.isPending && (
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0">
@@ -124,15 +174,21 @@ export function AITutor() {
                   </div>
                   <div className="bg-muted/50 border border-border rounded-2xl rounded-tl-sm p-3 flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    <span className="text-xs text-muted-foreground">Thinking...</span>
+                    <span className="text-xs text-muted-foreground">
+                      Thinking...
+                    </span>
                   </div>
                 </div>
               )}
+
               <div ref={messagesEndRef} />
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="p-4 border-t border-border bg-background/50 backdrop-blur-sm">
+            <form
+              onSubmit={handleSubmit}
+              className="p-4 border-t border-border bg-background/50 backdrop-blur-sm"
+            >
               <div className="relative">
                 <Input
                   value={inputValue}
@@ -141,9 +197,9 @@ export function AITutor() {
                   className="pr-12 bg-background/50 border-primary/20 focus:border-primary/50 transition-colors"
                   disabled={chatMutation.isPending}
                 />
-                <Button 
+                <Button
                   size="icon"
-                  type="submit" 
+                  type="submit"
                   disabled={!inputValue.trim() || chatMutation.isPending}
                   className="absolute right-1 top-1 h-8 w-8 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
@@ -161,7 +217,9 @@ export function AITutor() {
         onClick={() => setIsOpen(true)}
         className={cn(
           "fixed bottom-6 right-6 md:right-8 z-40 p-4 rounded-full shadow-lg shadow-primary/25 transition-all duration-300",
-          isOpen ? "bg-muted text-muted-foreground scale-0 opacity-0" : "bg-primary text-primary-foreground scale-100 opacity-100"
+          isOpen
+            ? "bg-muted text-muted-foreground scale-0 opacity-0"
+            : "bg-primary text-primary-foreground scale-100 opacity-100"
         )}
       >
         <MessageSquare className="w-6 h-6" />
