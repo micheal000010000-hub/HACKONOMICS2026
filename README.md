@@ -237,7 +237,7 @@ npm run db:push
 
 **Micheal Angelo**
 
-- 📧 Email: *michealangelo000010000@gmail.com*  
+- 📧 Email: *micheal000010000@gmail.com*  
 - 🧑‍💻 GitHub: *https://github.com/micheal000010000-hub*  
 - 🧠 LeetCode: *https://leetcode.com/u/micheal000010000/*  
 
