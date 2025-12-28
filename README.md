@@ -8,15 +8,15 @@ This project explores how **technology, cryptography, and decentralized systems*
 
 ---
 
-## 🚧 Project Status: Active Development
+## ✅ Project Status: Completed & Submitted
 
-⚠️ **This project is currently under active development.**
+This project is now **completed** and represents the final prototype submitted for Hackonomics 2026.
 
-- 🛠️ Ongoing implementation and iteration  
-- 🏁 **Hackathon submission deadline:** **March 2026**
-- ✨ Features, UI, and simulations are evolving continuously
+## 🏆 Hackonomics 2026 Submission
 
-The current version represents a **working prototype**, not the final product.
+For full hackathon submission details and the official page, visit: [Hackonomics 2026]([https://hackonomics2026.com](https://devpost.com/software/trustblocks-interactive-financial-literacy-simulator))
+
+
 
 ---
 
