@@ -14,7 +14,7 @@ This project is now **completed** and represents the final prototype submitted f
 
 ## 🏆 Hackonomics 2026 Submission
 
-For full hackathon submission details and the official page, visit: [Hackonomics 2026](*https://hackonomics2026.com](https://devpost.com/software/trustblocks-interactive-financial-literacy-simulator*)
+For full hackathon submission details and the official page, visit: [Hackonomics 2026](https://devpost.com/software/trustblocks-interactive-financial-literacy-simulator)
 
 
 
